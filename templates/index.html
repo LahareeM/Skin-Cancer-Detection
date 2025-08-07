@@ -6,7 +6,30 @@
     </head>
 
     <body>
-        <h1>Welcome to the Skin Cancer Detection App</h1>
+        <h1>Skin Cancer Detection</h1>
+        <form action="/predict" method="POST" enctype="multipart/form-data">
+            <label>Name: </label>
+            <input type="text" name="name" required>
+            <br><br>
+
+            <label>Weight: </label>
+            <input type="number" step="any" name="weight" required>
+            <br><br>
+
+            <label>Age: </label>
+            <input type="number" name="age" required>
+            <br><br>
+
+            <label>Date: </label>
+            <input type="date" name="date" required>
+            <br><br>
+
+            <label>Upload Image: </label>
+            <input type="file" name="image" accept="image/*" required>
+            <br><br>
+
+            <input type="submit" value="Predict">
+        </form>
     </body>
 
 </html>
