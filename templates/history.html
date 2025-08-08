@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Prediction History</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                background-color: #f4f7f9;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+
+            h1 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 20px;
+                font-weight: 500;
+            }
+
+            table {
+                width: 100%;
+                max-width: 800px;
+                border-collapse: collapse;
+                margin: 20px 0;
+                background-color: white;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            th,
+            td {
+                padding: 15px;
+                text-align: center;
+                border: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #007bff;
+                color: white;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            tr:hover {
+                background-color: #f1f1f1;
+            }
+
+            a {
+                color: #007bff;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+            a:hover {
+                color: #0056b3;
+            }
+
+            .back-link {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #28a745;
+                color: white;
+                border-radius: 5px;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+
+            .back-link:hover {
+                background-color: #218838;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                background-color: #dc3545;
+                /* Red */
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn:hover {
+                background-color: #c82333;
+            }
+
+            @media (max-width: 480px) {
+                table {
+                    font-size: 0.9em;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Prediction History</h1>
+        {% if message %}
+        <p style="color: green;"><strong>{{ message }}</strong></p>
+        {% endif %}
+
+        {% if predictions %}
+        <table>
+            <tr>
+                <th>Patient Name</th>
+                <th>Date</th>
+                <th>Report</th>
+            </tr>
+            {% for prediction in predictions %}
+            <tr>
+                <td>{{ prediction[1] }}</td>
+                <td>{{ prediction[4] }}</td>
+                <td><a href="/report/{{ prediction[0] }}">View Report</a></td> <!-- Link to report -->
+            </tr>
+            {% endfor %}
+        </table>
+        <form action="/reset_history" method="post" style="display:inline;">
+            <button type="submit" class="btn">Reset History</button>
+        </form>
+        {% else %}
+        <p>No prediction history found.</p>
+        {% endif %}
+        <a href="/" class="back-link">Go Back</a>
+    </body>
+
+</html>

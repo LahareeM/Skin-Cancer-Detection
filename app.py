@@ -10,10 +10,10 @@ app=Flask(__name__)
 
 # Database connection 
 db = pymysql.connect( 
-host='localhost', 
-user='root',
-password='root',
-database='skin_cancer_db' 
+    host='localhost', 
+    user='root',
+    password='root',
+    database='skin_cancer_db' 
 ) 
 
 UPLOAD_FOLDER = 'static/uploads'
@@ -24,6 +24,7 @@ model = load_model('model.h5')
 def index():
     return render_template('index.html')
 
+# For predict showing result page
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
@@ -34,7 +35,8 @@ def predict():
         image_file = request.files['image'] 
         
         # Save the image to a specific directory 
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file.filename) 
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename) 
         image_file.save(image_path)
         
         # Preprocess the image for prediction 
@@ -61,9 +63,51 @@ def predict():
         date=date, 
         prediction=predicted_class, 
         probability=probability, 
-        image_path=app.config['UPLOAD_FOLDER'] +'/'+ image_file.filename) 
+        image_path=image_path
+        ) 
     except KeyError as e: 
         return jsonify({"error": f"Missing field: {str(e)}"}), 400
+
+# For histories showing history page
+@app.route('/history') 
+def history(): 
+    cursor = db.cursor() 
+    cursor.execute("SELECT * FROM predictions") 
+    predictions = cursor.fetchall() 
+    return render_template('history.html', predictions=predictions)
+
+# Reset History will who msg in history page too, after deleting
+@app.route('/reset_history', methods=['POST'])
+def reset_history():
+    cursor = db.cursor() 
+    try: 
+        # Delete all records from the predictions table 
+        cursor.execute("DELETE FROM predictions") 
+        db.commit() 
+        return render_template('history.html', predictions=[], message="History has been reset.") 
+    except Exception as e: 
+        db.rollback() # Rollback in case of error 
+    return jsonify({"error": str(e)}), 500
+
+# From history page to see perticular report in report page
+@app.route('/report/<int:prediction_id>') 
+def report(prediction_id): 
+    cursor = db.cursor() 
+    cursor.execute("SELECT * FROM predictions WHERE id = %s", (prediction_id,)) 
+    prediction = cursor.fetchone() 
+    if prediction: 
+        return render_template('report.html', 
+            patient_name=prediction[1], 
+            age=prediction[2], 
+            weight=prediction[3], 
+            date=prediction[4], 
+            image_path='/'+prediction[5] , 
+            prediction=prediction[6], 
+            probability=prediction[7]
+            ) 
+    else: 
+        return "Prediction not found", 404
+
 
 if __name__=='__main__':
     app.run(debug=True)
